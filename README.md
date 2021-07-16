@@ -1,7 +1,7 @@
 #### DAY 0
 1. Create project folder
-   * $ mkdir apply_job
-   * $ cd apply_job
+   * $ mkdir projects
+   * $ cd projects
    * $ mkdir my_website
    * $ cd my_website
 2. Initialize track log
