@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block top %}
+        <div class="nn-text m-0">
+            <h2>Project</h2>
+        </div>
+        <div class="nn-light-text">
+            <h2>AI + WEB + ELECTRONIC</h2>
+        </div>
+{% endblock top%}
+
+{% block content %}
+    <div class='container'>
+        {% if current_user.is_authenticated  and current_user.email == admin_email %}
+            <a class="btn btn-primary mb-5 mt-2 nn-one-click" href="{{ url_for('projects.create_project') }}"> Create Project</a>
+        {% endif %}
+        {% for project in projects.items %}
+            <article class='nn-article'>
+                <div class='row'>
+                    <div class='col-5'>
+                        <a href="{{ url_for('projects.project', project_id=project.id) }}"><img class='nn-thumbnail' src="{{ project.image }}"></a>
+                    </div>
+                    <div class='col-7'>
+                        <a class='nn-title' href="{{ url_for('projects.project', project_id=project.id) }}"> {{ project.title }}</a>
+                        <p><a class='nn-category' href="{{ url_for('main.project', sort_category=project.category) }}">{{ project.category }}</a> - {{ project.date.strftime('%b %e, %Y') }} </p>
+                        <div class='nn-hidden mt-1'>
+                            {{ project.content | safe | truncate(380, end =' ... ') }}
+                            <a href="{{ url_for('projects.project', project_id=project.id) }}">Read more</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+        {% if projects.pages > 1 %}
+            <div class='text-center'>
+                {% for page_number in projects.iter_pages(left_current=1, right_current=2, left_edge=1, right_edge=1) %}
+                    {% if page_number %}
+                        {% if page_number == projects.page %}
+                            <a class='btn btn-info mr-2 mb-5 d-inline' href="{{ url_for('main.project', sort_category=sort_category, page=page_number) }}">{{ page_number}}</a>
+                        {% else %}
+                            <a class='btn btn-outline-info mr-2 mb-5 d-inline' href="{{ url_for('main.project', sort_category=sort_category, page=page_number) }}">{{ page_number}}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+                <br><br>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

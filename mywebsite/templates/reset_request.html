@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block top %}
+        <div class="nn-text">
+            <h2>Reset Password</h2>
+        </div>
+        <div class="nn-light-text">
+            <h2>Email in, password out</h2>
+        </div>
+        <div class="nn-form container">
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <div class='form-group'>
+                    {{ form.email.label(class='form-control-label mt-5') }}
+                    {% if form.email.errors %}
+                        {{ form.email(class='form-control form-control-lg is-invalid') }}
+                        <div class='invalid-feedback'>
+                            {% for error in form.email.errors %}
+                                <span>{{ error }} </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class='form-control form-control-lg') }}
+                    {% endif %}
+                </div>
+                <div class='form-group'>
+                    {{ form.submit(class='btn btn-primary') }}
+                </div>
+                <br>
+            </form>
+        </div>
+{% endblock top%}

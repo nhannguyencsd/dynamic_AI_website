@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block top %}
+    {% if current_user.email == admin_email %}
+        <div class="container mb-4">
+            <div class="row">
+                <div class='col-4'>            
+                    <a class="btn btn-primary float-right nn-one-click" style="width: fit-content;" href="{{ url_for('main.create_home') }}"> Create New Home</a>
+                </div>
+                <div class='col-4'>            
+                    <a class="btn btn-success nn-one-click" style="width: fit-content;" href="{{ url_for('main.update_home') }}"> Update This Home</a>
+                </div>
+                <div class='col-4'>
+                    <a class="btn btn-danger float-left nn-one-click" style="width: fit-content;" href="{{ url_for('main.before_delete_home') }}"> Delete Exits Home(s)</a>
+                </div>
+            </div>
+        </div>
+    {% endif%}    
+    <div class="nn-text">
+        <h2>{{ home.greeting }}</h2>
+    </div>
+    <div class="nn-light-text">
+        <h2>{{ home.position }}</h2>
+    </div>
+    <div id="nn-about">
+        <img src="{{ url_for('static', filename='images/admin/about.png') }}">
+    </div>
+    
+{% endblock top %}
+
+{% block content %}
+    {{ home.about_me | safe }}
+{% endblock content %}

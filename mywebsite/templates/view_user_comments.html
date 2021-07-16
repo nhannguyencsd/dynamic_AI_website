@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% block content %}   
+    <div class='nn-project'>
+        <h2 class="text-center mb-4 mt-0 font-weight-bold nn-nonlink-color">Comentes by {{ user.username }}</h2> 
+        {% for comment, readable_date in readable_comments %}
+            <div class='d-flex bg-info rounded mb-3' >
+                <div class='d-flex mt-2 mb-2 ml-1'>
+                    <div class=' ml-2 mr-3'>
+                        <img class=' rounded-circle m-auto mt-2' style="width: 3rem; height: 3rem;" src="{{ url_for('static', filename='images/user/' + comment.author.image)}}">
+                    </div>
+                    <div> 
+                        <div>
+                            <h6 class='text-muted d-inline'> 
+                                {{ readable_date }}
+                                on <a class='font-weight-bold nn-link-color'href=" {{ url_for('projects.project', project_id=comment.project.id) }}"> {{ comment.project.title }}</a>
+                            </h6>
+                            <p>{{ comment.content }}</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        {% endfor %}
+        <br>
+        {% if pagination_comments.pages > 1 %}
+            <div class='text-center'>
+                {% for page_number in pagination_comments.iter_pages(left_current=1, right_current=2, left_edge=1, right_edge=1) %}
+                    {% if page_number %}
+                        {% if page_number == pagination_comments.page %}
+                            <a class='btn btn-info mb-5 d-inline' href="{{ url_for('users.view_user_comments',username=user.username, page=page_number) }}">{{ page_number}}</a>
+                        {% else %}
+                            <a class='btn btn-outline-info mb-5 d-inline' href="{{ url_for('users.view_user_comments',username=user.username, page=page_number) }}">{{ page_number}}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+                <br><br>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}

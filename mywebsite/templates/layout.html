@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/vendor/bootstrap-4.5.2-dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }} ">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/vendor/fontawesome-free-5.14.0-web/css/all.css') }} ">
+    <link rel="icon" href="data:;base64,=">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if title %}
+        <title>{{ title }}</title>
+    {% else %}
+        <title>About Me</title>
+    {% endif %}
+</head>
+<body class='d-flex flex-column min-vh-100'>
+    <div {% if uniform %} class="bg-white" {% else %} class="nn-first-page" {% endif %} >
+        <header {% if uniform %} class='navbar' {% else %} class="navbar bg-info" {% endif %} >
+            <div class="container">
+                <a class="navbar-brand mr-20" href="/"><i class="fas fa-home fa-2x"></i></a>
+                <div class="navbar-nav mr-auto"></div>
+                {% if not current_user.is_authenticated %}
+                    <a class="nav-item nav-link nn-top-right" href="{{ url_for('main.home') }}">About</a>
+                {% endif %}
+                <a class="nav-item nav-link nn-top-right" href="{{ url_for('main.project') }}">Projects</a>
+                {% if current_user.is_authenticated %}
+                    <a class="nav-item nav-link nn-top-right" href="{{ url_for('users.account') }}">Account</a>
+                    <a class="nav-item nav-link nn-top-right" href="{{ url_for('users.logout') }}">Logout</a>
+                {% else %}
+                    <a class="nav-item nav-link nn-top-right" href="{{ url_for('users.login') }}">Login</a>
+                {% endif %}
+            </div>
+        </header>
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class=' alert alert-{{ category }}' style="max-width:500px; margin: 0 auto; text-align: center;">
+                            <button type='button' class="close" data-dismiss="alert">&times;</button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% block top %}{% endblock top%}
+    </div>
+
+    <div class='container'>
+        {% block content %}{% endblock content %}
+    </div>
+
+    {% if not no_footer %}
+        <footer class='mt-auto'>
+            <div class='text-center'>
+                <div class='nn-name'>Nhan Nguyen</div>
+                <div class='nn-line'></div>
+                <div class='nn-task'>{{ admin_task }}</div>
+                <div class='nn-contact'>
+                    <a href="https://www.linkedin.com/in/nhan-nguyen-2702571a8/"><img src="{{ url_for('static', filename='images/admin/contact1.png') }}"></a>
+                    <a href="mailto:{{ admin_email }}"><img src="{{ url_for('static', filename='images/admin/contact2.png') }}"></a>
+                    <a href="https://github.com/nhannguyencsd"><img src="{{ url_for('static', filename='images/admin/contact3.png') }}"></a>
+                </div>
+            </div>
+        </footer>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='scripts/vendor/jquery-3.5.1.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='styles/vendor/bootstrap-4.5.2-dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
+</body>
+</html>

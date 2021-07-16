@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block top %}
+        <div class="nn-text">
+            <h2>Login</h2>
+        </div>
+        <div class="nn-light-text">
+            <h2>one more step</h2>
+        </div>
+        <div class="nn-form container">
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <div class='form-group'>
+                    {{ form.email.label(class='form-control-label mt-5') }}
+                    {% if form.email.errors %}
+                        {{ form.email(class='form-control form-control-lg is-invalid') }}
+                        <div class='invalid-feedback'>
+                            {% for error in form.email.errors %}
+                                <span>{{ error }} </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class='form-control form-control-lg') }}
+                    {% endif %}
+                </div>
+                <div class='form-group'>
+                    {{ form.password.label(class='form-control-label mt-2') }}
+                    {% if form.password.errors %}
+                        {{ form.password(class='form-control form-control-lg is-invalid') }}
+                        <div class='invalid-feedback'>
+                            {% for error in form.password.errors %}
+                                <span>{{ error }} </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class='form-control form-control-lg') }}
+                    {% endif %}
+                </div>
+                <div class='form-check'>
+                    {{ form.remember(class='form-check-input') }}
+                    {{ form.remember.label(class='form-check-label') }}
+                </div>
+                <div class='form-group'>
+                    {{ form.submit(class='btn btn-primary') }}
+                </div>
+            </form>
+            
+            <div class='border-top pt-1 pb-5'>
+                <div class='text-muted'>
+                    Forgot password? 
+                    <a class='ml-2' href="{{ url_for('users.reset_request') }}" style="color: #0056B0; font-weight: 500;">Reset Password</a>
+                </div>
+                <div class='text-muted'>
+                    Need an account?<a class='ml-2' href="{{ url_for('users.register') }}" style="color: #0056B0; font-weight: 500;"> Create Account</a>
+                </div>
+            </div>
+        </div>
+{% endblock top%}

@@ -1,0 +1,201 @@
+{% macro delete_project_popup(project) %}
+<div class="modal fade p-5" id="delete_project_{{project.id}}" tabindex="-1" role="dialog" aria-labelledby="delete_project_{{project.id}}Label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header p-0">
+                <h5 class="modal-title p-2" id="delete_project_{{project.id}}Label">Are you sure want to delete this project ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="p-1">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer p-0">
+                <button type="button" class="btn btn-secondary m-3" data-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('projects.delete_project', project_id=project.id) }}" method="post">
+                    <input class="btn btn-danger nn-one-click" type="submit" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+{% macro comment_popup(comment,  do) %}
+    <div class="modal fade p-5" id="{{do}}_comment_{{comment.id}}" tabindex="-1" role="dialog" aria-labelledby="{{do}}_comment_{{comment.id}}Label" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width: 70vw;">
+            <div class="modal-content">
+                <div class="modal-header p-2">
+                    <h5 class="modal-title" id="{{do}}_comment_{{comment.id}}Label">Are you sure want to {{ do }} this comment?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer p-0">
+                    {% if do == 'update' %}
+                        <form action="{{ url_for('comments.update_comment', comment_id=comment.id) }}" method="post">
+                            <textarea class='form-control m-auto' name="forming" cols="50" rows="10">{{ comment.content }}</textarea>
+                            <input class="btn btn-primary d-inline float-right mr-2 nn-one-click" type="submit" value="Update">
+                            <button type="button" class="btn btn-secondary d-inline float-right mr-2" data-dismiss="modal">Cancel</button>
+                            
+                    {% elif do == 'delete' %}
+                        <button type="button" class="btn btn-secondary m-3" data-dismiss="modal">Cancel</button>
+                        <form action="{{ url_for('comments.delete_comment', comment_id=comment.id) }}" method="post">
+                            <input class="btn btn-danger nn-one-click" type="submit" value="Delete">
+                    {% endif %}
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+
+{% extends 'layout.html' %}
+{% block content %}   
+    <div class='nn-project'>
+        <article class="mb-0 pb-0">
+            {% if current_user.is_authenticated  and current_user.email == admin_email %}
+                <div>
+                    {% if is_aidotpy_failed %}
+                        <div class=" mb-2 pt-1 pb-1 pl-2 pr-2 rounded bg-danger" style="width: max-content;">Failure in ai.py file</div>
+                    {% else %}
+                        <div class=" mb-2 pt-1 pb-1 pl-2 pr-2 rounded" style="width: max-content; background-color: #17a2b8;">ai.py file can work</div>
+                    {% endif %}
+                    <a class="btn btn-primary d-inline btn-lg mr-2 nn-one-click p-1" href="{{ url_for('projects.update_project', project_id=project.id) }}">Update Project</a>
+                    <button  type='button' class="btn btn-danger d-inline m-1 p-1" data-toggle="modal" data-target="#delete_project_{{project.id}}">Delete Project</button>
+                    {{ delete_project_popup(project) }} 
+                    <br> <br>
+                </div>
+            {% endif %}
+            <h2> {{ project.title }}</h2>
+            <p><a class='nn-category' href="{{ url_for('main.project', sort_category=project.category, page=1) }}">{{ project.category }}</a> - <span class="text-muted">{{ project.date.strftime('%b %e, %Y') }}</span></p>
+            <div>
+                {{ project.content | safe }}
+                {% if current_user.is_authenticated %}
+                    {% if not is_aidotpy_failed %}
+                        {% if project.model_name %} {# if project.model_name != '' it means AI category then show run button #}
+                            <div style="background-color: white">
+                                <form  action="" method="POST" enctype="multipart/form-data">
+                                    {{ ai_form.hidden_tag() }}
+                                    <div class='form-group'>
+                                        {% if project.need_input == 'No' %} 
+                                            {{ ai_form.input(class='form-control-file p-0 nn-file-select nn-no-input') }}
+                                        {% else %}
+                                            {{ ai_form.input(class='form-control-file p-0 nn-file-select', required=True) }}
+                                            {% if ai_form.input.errors %}
+                                                {% for error in ai_form.input.errors %}
+                                                    <span class='text-danger'>{{ error }} </span>
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class='form-group'>
+                                        {{ ai_form.submit(class='btn btn-sm btn-primary float-left mt-0 p-1 mb-5 nn-one-click') }}
+                                    </div>
+                                </form>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {% if project.category == 'AI' %}
+                            {% if current_user.email == admin_email%}
+                                <div class="p-1 rounded bg-danger" style="width: max-content;">Since current ai.py is failure, there is no run button right here. I must to update ai.py file by click on Update Project button</div>
+                            {% else %}
+                                <div>The run model will be coming later \(^_^)/</div>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    {% if project.category == 'AI'%}
+                        <p class='text-muted'>
+                            Please  
+                            <a class='font-weight-bold nn-link-color' href="{{ url_for('users.login') }}">login</a>
+                            to run model
+                        </p> 
+                    {% endif %}
+                {% endif %}
+            </div>
+            <br> <br>
+        </article>
+        {% if output %}
+            {{ output | safe }}
+        {% endif %}
+        
+        {% if current_user.is_authenticated %}
+            <form action="" method="POST">
+                {{ comment_form.hidden_tag() }}
+                <div class='form-group'>
+                    {{ comment_form.content.label(class='font-weight-bold d-flex') }}
+                    {% if comment_form.content.errors %}
+                        {{ comment_form.content(class='form-control form-control-lg is-invalid') }}
+                        <div class='invalid-feedback'>
+                            {% for error in comment_form.content.errors %}
+                                <span>{{ error }} </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div>
+                            {{ comment_form.content(class='form-control form-control-lg mt-0') }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class='form-group'>
+                    {{ comment_form.submit(class='btn btn-primary btn-sm nn-one-click') }}
+                </div>
+            </form>
+        {% else %}
+            <h5 class="font-weight-bold m-0">Leave a Reply</h5>
+            <p class='text-muted mb-0'>
+                You must be 
+                <a class='font-weight-bold nn-link-color' href="{{ url_for('users.login') }}">login</a>
+                to post comment
+            </p> 
+        {% endif %}
+        
+        <div class="font-weight-bold mb-1 mt-0">Comments ({{ pagination_comments.total }})</div> 
+        {% for comment, readable_date in readable_comments %}
+            <div class='d-flex bg-info rounded mb-3' >
+                <div class='d-flex mt-2 mb-2 ml-1'>
+                    <div class=' ml-2 mr-3'>
+                        <a href="{{ url_for('users.view_user_comments', username=comment.author.username) }}">
+                            <img class=' rounded-circle m-auto mt-2' style="width: 3rem; height: 3rem;" src="{{ url_for('static', filename='images/user/' + comment.author.image)}}">
+                        </a>
+                    </div>
+                    <div> 
+                        <div>
+                            <a href="{{ url_for('users.view_user_comments', username=comment.author.username) }}"><h6 class='mt-2 font-weight-bold d-inline nn-color'>{{ comment.author.username}}  </h6></a>
+                            <h6 class='text-muted d-inline'> said {{ readable_date }}</h6>
+                            <p>{{ comment.content }}</p>
+                        </div>
+                        {% if current_user.is_authenticated %}
+                            <div class='mt-2 mb-0 pb-0'>
+                                {% if comment.author == current_user %}
+                                    <button type='button' class="btn btn-outline-primary btn-sm d-inline pl-1 pl-1 pt-0 pb-0 m-1" data-toggle="modal" data-target="#update_comment_{{comment.id}}"> <i class="fas fa-edit"></i><small>Edit </small></button>
+                                     {{ comment_popup(comment, 'update') }} 
+                                {% endif %}
+                                {% if current_user.email == admin_email or comment.author == current_user %}
+                                    <button type='button' class="btn btn-outline-danger btn-sm d-inline pl-1 pl-1 pt-0 pb-0 m-1" data-toggle="modal" data-target="#delete_comment_{{comment.id}}"> <i class="fas fa-trash-alt"></i><small>Delete </small></button>
+                                    {{ comment_popup(comment, 'delete') }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% if pagination_comments.pages > 1 %}
+            <div class='text-center'>
+                {% for page_number in pagination_comments.iter_pages(left_current=1, right_current=2, left_edge=1, right_edge=1) %}
+                    {% if page_number %}
+                        {% if page_number == pagination_comments.page %}
+                            <a class='btn btn-info mb-5 d-inline' href="{{ url_for('projects.project', project_id=project.id, page=page_number) }}">{{ page_number}}</a>
+                        {% else %}
+                            <a class='btn btn-outline-info mb-5 d-inline' href="{{ url_for('projects.project', project_id=project.id, page=page_number) }}">{{ page_number}}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+                <br><br>
+            </div>
+        {% endif %}
+        
+    </div>
+{% endblock content %}
